@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-display: 'Inter Tight', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --background: 40 7% 95%;
+    --foreground: 240 6% 10%;
+    --card: 40 7% 97%;
+    --card-foreground: 240 6% 10%;
+    --popover: 40 7% 97%;
+    --popover-foreground: 240 6% 10%;
+    --primary: 240 3% 11%;
+    --primary-foreground: 40 7% 95%;
+    --secondary: 40 5% 90%;
+    --secondary-foreground: 240 6% 10%;
+    --muted: 40 5% 90%;
+    --muted-foreground: 240 3% 40%;
+    --accent: 16 100% 50%;
+    --accent-foreground: 240 6% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 40 5% 82%;
+    --input: 40 5% 82%;
+    --ring: 240 3% 11%;
+    --chart-1: 170 100% 23%;
+    --chart-2: 180 100% 19%;
+    --chart-3: 240 3% 11%;
+    --chart-4: 0 84% 60%;
+    --chart-5: 40 5% 70%;
+    --radius: 0px;
+
+    --teal: 181 100% 19%;
+    --amber: 44 100% 50%;
+
+    --sidebar-background: 240 3% 11%;
+    --sidebar-foreground: 40 7% 90%;
+    --sidebar-primary: 44 100% 50%;
+    --sidebar-primary-foreground: 240 6% 10%;
+    --sidebar-accent: 240 3% 18%;
+    --sidebar-accent-foreground: 40 7% 95%;
+    --sidebar-border: 240 3% 20%;
+    --sidebar-ring: 44 100% 50%;
+  }
+
+  .dark {
+    --background: 240 3% 8%;
+    --foreground: 40 7% 95%;
+    --card: 240 3% 11%;
+    --card-foreground: 40 7% 95%;
+    --popover: 240 3% 11%;
+    --popover-foreground: 40 7% 95%;
+    --primary: 40 7% 95%;
+    --primary-foreground: 240 3% 11%;
+    --secondary: 240 3% 16%;
+    --secondary-foreground: 40 7% 95%;
+    --muted: 240 3% 16%;
+    --muted-foreground: 40 5% 60%;
+    --accent: 44 100% 50%;
+    --accent-foreground: 240 6% 10%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3% 20%;
+    --input: 240 3% 20%;
+    --ring: 40 7% 95%;
+    --chart-1: 44 100% 50%;
+    --chart-2: 180 100% 19%;
+    --chart-3: 40 7% 95%;
+    --chart-4: 0 84% 60%;
+    --chart-5: 240 3% 40%;
+
+    --teal: 181 100% 19%;
+    --amber: 44 100% 50%;
+
+    --sidebar-background: 240 3% 6%;
+    --sidebar-foreground: 40 7% 90%;
+    --sidebar-primary: 44 100% 50%;
+    --sidebar-primary-foreground: 240 6% 10%;
+    --sidebar-accent: 240 3% 12%;
+    --sidebar-accent-foreground: 40 7% 95%;
+    --sidebar-border: 240 3% 14%;
+    --sidebar-ring: 44 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-display);
+    font-size: 17px;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    overscroll-behavior: none;
+  }
+  button, a, nav, [role="button"], [onClick], .clickable, .card, .badge, .pulse-indicator {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom-margin {
+  margin-bottom: env(safe-area-inset-bottom);
+}
+
+.font-mono-tech {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.status-stroke {
+  border-width: 2px;
+  border-style: solid;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 currentColor; }
+  50% { box-shadow: 0 0 0 4px transparent; }
+  100% { box-shadow: 0 0 0 0 currentColor; }
+}
+
+.pulse-indicator {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
