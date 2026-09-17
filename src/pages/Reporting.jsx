@@ -168,12 +168,14 @@ export default function Reporting() {
           ? differenceInHours(new Date(t.resolved_date), new Date(t.created_date))
           : null;
         const sla = SLA_HOURS[t.category] ?? DEFAULT_SLA_HOURS;
+        const store = stores.find(s => s.id === t.store_id);
         return {
           "Task Code": t.task_code, "Date": t.created_date ? format(new Date(t.created_date), "dd/MM/yyyy HH:mm") : "",
           "Title": t.title, "Description": t.description,
           "Category": t.category, "Sub-Category": t.sub_category, "Sub-Location": t.sub_location,
           "Priority": t.priority, "Status": t.status,
-          "Store Code": t.store_code, "Store Name": t.store_name,
+          "Store Code": t.store_code, "Store Name": t.store_name, "Region": store?.region ?? "",
+          "Manager Name": store?.contact_name ?? "", "Manager Phone": store?.contact_phone ?? "",
           "Team": t.assigned_team_name,
           "Assigned Date": t.assigned_date ? format(new Date(t.assigned_date), "dd/MM/yyyy HH:mm") : "",
           "Resolved Date": t.resolved_date ? format(new Date(t.resolved_date), "dd/MM/yyyy HH:mm") : "",
@@ -246,14 +248,12 @@ export default function Reporting() {
         </Button>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-0 mb-4">
+      {/* KPI cards — single grid so it wraps 5 + 2, matching the original layout */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-0 mb-10">
         <KPI label="TOTAL REQUESTS" value={stats.total} icon={Wrench} />
         <KPI label="ASSIGNED" value={stats.assigned} icon={Clock} accent={stats.assigned > 0} />
         <KPI label="ON HOLD" value={stats.onHold} icon={Activity} accent={stats.onHold > 0} />
         <KPI label="RESOLVED" value={stats.resolved} icon={CheckCircle2} />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-0 mb-10">
         <KPI label="CRITICAL ACTIVE" value={stats.critical} icon={AlertTriangle} accent={stats.critical > 0} />
         <KPI label="AVG RESOLUTION" value={stats.avgResHours !== null ? `${stats.avgResHours}h` : "N/A"} icon={TrendingUp} />
         <KPI label="SLA COMPLIANCE" value={stats.slaRate !== null ? `${stats.slaRate}%` : "N/A"} icon={BarChart2} accent={stats.slaRate !== null && stats.slaRate < 80} />
@@ -290,7 +290,7 @@ export default function Reporting() {
         </ChartCard>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 mb-4">
         <ChartCard title="REQUESTS BY STATUS">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={stats.byStatus} layout="vertical">
@@ -303,6 +303,22 @@ export default function Reporting() {
           </ResponsiveContainer>
         </ChartCard>
 
+        <ChartCard title="TEAM WORKLOAD">
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={stats.teamWorkload}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="team" tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
+              <YAxis tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
+              <Tooltip {...chartTooltipStyle} />
+              <Legend wrapperStyle={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
+              <Bar dataKey="assigned" stackId="a" fill="#FFB800" name="Assigned" />
+              <Bar dataKey="resolved" stackId="a" fill="#005F61" name="Resolved" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 mb-10">
         <ChartCard title="PRIORITY DISTRIBUTION">
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
@@ -326,25 +342,9 @@ export default function Reporting() {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 mb-10">
-        <ChartCard title="TEAM WORKLOAD">
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={stats.teamWorkload}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="team" tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
-              <YAxis tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
-              <Tooltip {...chartTooltipStyle} />
-              <Legend wrapperStyle={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
-              <Bar dataKey="assigned" stackId="a" fill="#FFB800" name="Assigned" />
-              <Bar dataKey="resolved" stackId="a" fill="#005F61" name="Resolved" />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
 
         <ChartCard title="SLA COMPLIANCE BY CATEGORY">
-          <ResponsiveContainer width="100%" height={260}>
+          <ResponsiveContainer width="100%" height={220}>
             <BarChart data={stats.slaByCat}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="category" tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />

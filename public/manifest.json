@@ -1,0 +1,12 @@
+{
+  "name": "MaintOps",
+  "short_name": "MaintOps",
+  "description": "Operational Velocity — Facility Management Ecosystem",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f2f1ee",
+  "theme_color": "#1c1b1d",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
