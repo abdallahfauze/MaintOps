@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/AuthContext";
+import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
   { label: "CIVIL", icon: Building2, sla: "96h" },
@@ -39,6 +40,7 @@ const fadeUp = {
 export default function Landing() {
   const { user, isAuthenticated, isLoadingAuth } = useAuth();
   const navigate = useNavigate();
+  const [heroImageFailed, setHeroImageFailed] = useState(false);
 
   useEffect(() => {
     if (!isLoadingAuth && isAuthenticated && user && !user.role?.startsWith("pending_")) {
@@ -69,7 +71,20 @@ export default function Landing() {
 
       {/* HERO */}
       <section className="relative overflow-hidden bg-foreground text-background">
-        <div className="absolute inset-0 bg-gradient-to-br from-foreground via-foreground/95 to-amber/20" />
+        {!heroImageFailed && (
+          <img
+            src="https://media.base44.com/images/public/69ce188060ef2630b1d89bdf/4e446083b_generated_4c7bf952.png"
+            alt=""
+            onError={() => setHeroImageFailed(true)}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
+        <div className={cn(
+          "absolute inset-0",
+          heroImageFailed
+            ? "bg-gradient-to-br from-foreground via-foreground/95 to-amber/20"
+            : "bg-gradient-to-t from-foreground via-foreground/90 to-foreground/40"
+        )} />
         <div className="relative max-w-7xl mx-auto px-6 py-24 lg:py-36">
           <motion.div {...fadeUp} transition={{ duration: 0.5 }}>
             <div className="font-mono text-xs tracking-[0.3em] text-background/60 mb-4">
