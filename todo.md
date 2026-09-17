@@ -36,16 +36,27 @@ progress is made so status stays visible at a glance.
 - [x] `escalate-tasks` edge function + pg_cron schedule (SLA escalation matrix)
 - [x] Frontend integration layer (`src/api/entities.js`, `AuthContext`, `notifications.js`, `storage.js`)
 
-## 3. Infrastructure provisioning — ⏳ blocked on your credentials
+## 3. Infrastructure provisioning — ⏳ needs manual steps in the Supabase dashboard
 
-- [ ] Create Supabase project
-- [ ] Send project URL + anon key + service role key + DB connection string
-- [ ] Apply migrations (`supabase db push` or paste into SQL editor)
-- [ ] Deploy `send-email` and `escalate-tasks` edge functions
-- [ ] Create Resend account, send API key
-- [ ] Set edge function secrets (`RESEND_API_KEY`, `RESEND_FROM_EMAIL`, escalation contact name/email x2)
-- [ ] Set `app.settings.escalate_tasks_url` / `app.settings.service_role_key` for the cron job
-- [ ] Add site URL(s) to Supabase Auth redirect allow-list
+> **Why manual:** this Claude Code sandbox's network policy blocks all outbound
+> traffic to Supabase (confirmed: the Management API host, the project's own
+> REST API host, and raw Postgres/pooler TCP connections on every host tried
+> all fail — DNS resolves fine, but the connection itself is refused or hangs).
+> Credentials alone can't fix this; it's a hard block on this environment, so
+> every step below has to be run by you in the Supabase dashboard UI. Once
+> done, everything downstream (the app itself) works exactly as if I'd run it.
+
+- [x] Create Supabase project (`jakeaubtdzwwlditwxxt`)
+- [x] Get project URL + publishable/anon key + service role key
+- [ ] Run `supabase/migrations/0001_schema.sql` in the SQL Editor
+- [ ] Run `supabase/migrations/0002_storage.sql` in the SQL Editor
+- [ ] Run `supabase/migrations/0003_escalation_cron.sql` in the SQL Editor
+- [ ] Create + deploy `send-email` edge function (paste from repo)
+- [ ] Create + deploy `escalate-tasks` edge function (paste from repo)
+- [ ] Create Resend account, get API key
+- [ ] Set edge function secrets: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `ESCALATION_MANAGER_NAME`, `ESCALATION_MANAGER_EMAIL`, `ESCALATION_HOD_NAME`, `ESCALATION_HOD_EMAIL`
+- [ ] Run the two `alter database postgres set app.settings...` statements (SQL Editor) once `escalate-tasks` is deployed
+- [ ] Add site URL(s) to Supabase Auth → URL Configuration redirect allow-list
 - [ ] Promote your own account to `admin` (one-time SQL update after first sign-up)
 
 ## 4. Data seeding
