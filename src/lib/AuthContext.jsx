@@ -25,16 +25,16 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let active = true
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!active) return
-      setSession(session)
-      await loadProfile(session?.user?.id)
-      if (active) setIsLoadingAuth(false)
-    })
-
+    // Relying solely on onAuthStateChange (it fires immediately with the
+    // current session on subscribe) rather than also calling getSession()
+    // avoids a known supabase-js deadlock where the two compete for the
+    // same internal browser lock on a plain page load/refresh.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (!active) return
       setSession(newSession)
-      loadProfile(newSession?.user?.id)
+      loadProfile(newSession?.user?.id).finally(() => {
+        if (active) setIsLoadingAuth(false)
+      })
     })
 
     return () => {
