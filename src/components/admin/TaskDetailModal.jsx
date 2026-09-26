@@ -3,20 +3,50 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import MobileSelect from "@/components/shared/MobileSelect";
 import StatusBadge from "../shared/StatusBadge";
-import { MapPin, Clock, ChevronLeft } from "lucide-react";
+import { MapPin, Clock, ChevronLeft, X } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Users } from "@/api/entities";
 import { notifyTaskEvent } from "@/lib/notifications";
 
 const STATUSES = ["assigned", "on_hold", "resolved"];
 
+function PhotoLightbox({ url, onClose }) {
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-6 cursor-zoom-out"
+      onClick={onClose}
+    >
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
+      >
+        <X className="w-7 h-7" />
+      </button>
+      <img
+        src={url}
+        alt="Issue full size"
+        className="max-w-full max-h-full object-contain"
+      />
+    </div>,
+    document.body
+  );
+}
+
 export default function TaskDetailModal({ task, teams, open, onClose, onUpdate }) {
   const [assignTeam, setAssignTeam] = useState(task?.assigned_team_id || "");
   const [assignTeamName, setAssignTeamName] = useState(task?.assigned_team_name || "");
   const [status, setStatus] = useState(task?.status || "assigned");
   const [notes, setNotes] = useState(task?.notes || "");
+  const [lightboxUrl, setLightboxUrl] = useState(null);
 
   const { data: coordinators = [] } = useQuery({
     queryKey: ["coordinators"],
@@ -110,7 +140,13 @@ export default function TaskDetailModal({ task, teams, open, onClose, onUpdate }
           {task.photo_urls?.length > 0 && (
             <div className="flex gap-2 overflow-x-auto">
               {task.photo_urls.map((url, i) => (
-                <img key={i} src={url} alt="Issue" className="w-24 h-24 object-cover border-2 border-border" />
+                <img
+                  key={i}
+                  src={url}
+                  alt="Issue"
+                  onClick={() => setLightboxUrl(url)}
+                  className="w-24 h-24 object-cover border-2 border-border cursor-zoom-in hover:border-amber transition-colors"
+                />
               ))}
             </div>
           )}
@@ -158,6 +194,7 @@ export default function TaskDetailModal({ task, teams, open, onClose, onUpdate }
           </div>
         </div>
       </DialogContent>
+      {lightboxUrl && <PhotoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </Dialog>
   );
 }
