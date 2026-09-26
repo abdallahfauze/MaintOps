@@ -48,16 +48,17 @@ progress is made so status stays visible at a glance.
 
 - [x] Create Supabase project (`jakeaubtdzwwlditwxxt`)
 - [x] Get project URL + publishable/anon key + service role key
-- [ ] Run `supabase/migrations/0001_schema.sql` in the SQL Editor
-- [ ] Run `supabase/migrations/0002_storage.sql` in the SQL Editor
-- [ ] Run `supabase/migrations/0003_escalation_cron.sql` in the SQL Editor
-- [ ] Create + deploy `send-email` edge function (paste from repo)
-- [ ] Create + deploy `escalate-tasks` edge function (paste from repo)
-- [ ] Create Resend account, get API key
-- [ ] Set edge function secrets: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `ESCALATION_MANAGER_NAME`, `ESCALATION_MANAGER_EMAIL`, `ESCALATION_HOD_NAME`, `ESCALATION_HOD_EMAIL`
-- [ ] Run the two `alter database postgres set app.settings...` statements (SQL Editor) once `escalate-tasks` is deployed
-- [ ] Add site URL(s) to Supabase Auth → URL Configuration redirect allow-list
-- [ ] Promote your own account to `admin` (one-time SQL update after first sign-up)
+- [x] Run `supabase/migrations/0001_schema.sql` in the SQL Editor
+- [x] Run `supabase/migrations/0002_storage.sql` in the SQL Editor
+- [x] Run `supabase/migrations/0003_escalation_cron.sql` in the SQL Editor
+- [x] Create + deploy `send-email` edge function
+- [x] Create + deploy `escalate-tasks` edge function
+- [~] Create Resend account, get API key (account created; confirm secrets were saved)
+- [~] Set edge function secrets: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `ESCALATION_MANAGER_NAME`, `ESCALATION_MANAGER_EMAIL`, `ESCALATION_HOD_NAME`, `ESCALATION_HOD_EMAIL`
+- [x] Wire the cron job to the deployed `escalate-tasks` URL + service role key (via `cron.alter_job`, not `alter database` — see README)
+- [x] Add `https://maintops.vercel.app` as Site URL + `https://maintops.vercel.app/**` as a Redirect URL in Supabase Auth
+- [ ] Promote your own account to `admin` (one-time SQL update — blocked on completing sign-up below)
+- [ ] Optional: switch Supabase Auth to custom SMTP via Resend (removes the built-in email rate limit hit during testing)
 
 ## 4. Data seeding
 
@@ -65,9 +66,9 @@ progress is made so status stays visible at a glance.
 - [ ] Real maintenance team list (`maintenance_teams` table)
 - [ ] Invite/approve real users, assign stores/teams via Admin → User Access
 
-## 5. End-to-end verification (needs a live project)
+## 5. End-to-end verification (needs a live project) — ⏳ in progress
 
-- [ ] Sign up → request access → admin approval flow
+- [~] Sign up → request access → admin approval flow (blocked right now on Supabase's built-in auth email rate limit — waiting for it to reset)
 - [ ] Submit a request as requester → notifications + email fire to admins/team
 - [ ] Assign team, change status, resolve a task as admin/coordinator
 - [ ] Maintenance role sees only their team's tasks
@@ -78,19 +79,22 @@ progress is made so status stays visible at a glance.
 
 ## 6. Deployment
 
-- [ ] Choose a host for the frontend (Vercel/Netlify/other)
-- [ ] Set `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` as build env vars on the host
-- [ ] Deploy and verify production build
+- [x] Choose a host for the frontend → **Vercel**
+- [x] Project `maintops` created, linked to GitHub (auto-deploys on push to `claude/loving-heisenberg-46ax0q`)
+- [x] Set `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` as env vars on Vercel
+- [x] Deployed and verified production build → **https://maintops.vercel.app**
+- [x] Added `vercel.json` SPA rewrite (client-side routes like `/post-signup` were 404ing/falling through without it)
 - [ ] Point a custom domain (optional)
 
 ---
 
 ## Current status
 
-**Everything in sections 1–2 (all application code) is complete, committed, and pushed** to
-`claude/loving-heisenberg-46ax0q` (currently the repo's default branch).
+**Sections 1, 2, 3, and 6 are done.** The app is live at **https://maintops.vercel.app**,
+backed by a fully provisioned Supabase project (schema, RLS, storage, edge
+functions, cron) — all pushed to `claude/loving-heisenberg-46ax0q`.
 
-**Sections 3–6 need you** — they require a Supabase account, a Resend
-account, and real business data (stores/teams) that only you have. See
-`README.md` for the exact steps. Once you hand over the Supabase/Resend
-credentials, I can complete section 3 myself.
+**Right now:** waiting on Supabase's built-in auth email rate limit to reset
+before finishing sign-up → admin promotion (section 3's last item, and all of
+section 5). Optionally switching to custom SMTP (Resend) would remove this
+limit going forward. Section 4 (seeding real stores/teams) is next after that.
