@@ -60,13 +60,29 @@ supabase secrets set \
 notification. `escalate-tasks` is invoked every 15 minutes by the
 `maintops-escalate-tasks` pg_cron job (see
 `supabase/migrations/0003_escalation_cron.sql`) to apply the two-level SLA
-escalation matrix. That migration reads the function URL and service role
-key from Postgres settings — set them once after deploying:
+escalation matrix.
+
+That migration schedules the cron job with placeholder values, since hosted
+Supabase doesn't grant the exposed `postgres` role permission to run
+`alter database ... set app.settings.x` (that needs true superuser). Once
+`escalate-tasks` is deployed, wire in the real URL and service role key by
+updating the job directly (run in the SQL Editor — don't commit this
+statement with real values filled in):
 
 ```sql
-alter database postgres set app.settings.escalate_tasks_url =
-  'https://<project-ref>.functions.supabase.co/escalate-tasks';
-alter database postgres set app.settings.service_role_key = '<service-role-key>';
+select cron.alter_job(
+  job_id := (select jobid from cron.job where jobname = 'maintops-escalate-tasks'),
+  command := $$
+    select net.http_post(
+      url := 'https://<project-ref>.supabase.co/functions/v1/escalate-tasks',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'Authorization', 'Bearer <service-role-key>'
+      ),
+      body := '{}'::jsonb
+    );
+  $$
+);
 ```
 
 ## 4. Configure Auth
