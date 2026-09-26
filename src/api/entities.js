@@ -56,10 +56,16 @@ function createEntity(table) {
       if (error) throw error
     },
 
-    /** Realtime subscription. Returns an unsubscribe function. */
+    /**
+     * Realtime subscription. Returns an unsubscribe function.
+     * Each call gets its own uniquely-named channel — the app renders some
+     * subscribers (e.g. the notification bell) more than once at a time
+     * (mobile + desktop nav), and Supabase throws if two `.subscribe()`
+     * calls share a channel name.
+     */
     subscribe(callback) {
       const channel = supabase
-        .channel(`${table}-changes`)
+        .channel(`${table}-changes-${Math.random().toString(36).slice(2)}`)
         .on('postgres_changes', { event: '*', schema: 'public', table }, (payload) => {
           const type = payload.eventType === 'INSERT' ? 'create' : payload.eventType === 'UPDATE' ? 'update' : 'delete'
           callback({ type, id: (payload.new || payload.old)?.id, data: payload.new ?? payload.old })
